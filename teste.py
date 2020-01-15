@@ -12,36 +12,47 @@ Session = sessionmaker()
 
 Base = declarative_base()
 
+class Company(Base):
+    __tablename__ = 'tb_companies'
+
+    id_company = Column(Integer, primary_key=True)
+    name = Column(String(length=100))
+    saplogons = relationship("SapLogon")
+
+    def __repr__(self):
+        return "\n<Company(Name='{0}')>".format(self.name)
+
 class SapLogon(Base):
     __tablename__ = 'tb_saplogon'
 
     id_sap = Column(Integer, primary_key=True)
-    id_company = Column(Integer)
+    id_company = Column(Integer, ForeignKey('tb_companies.id_company'))
     description = Column(String(length=100))
     sapusers = relationship("SapUser")
 
     def __repr__(self):
-        return "<SapLogon(Description='{0}')>".format(self.description)
+        return "\n<SapLogon(Description='{0}')>".format(self.description)
 
 class SapUser(Base):
     __tablename__ = 'tb_sap_users'
 
     id_sap_user = Column(Integer, primary_key=True)
     id_sap = Column(Integer, ForeignKey('tb_saplogon.id_sap'))
-    # id_sap = Column(Integer)
     username = Column(String(length=100))
     password = Column(String(length=100))
     mandt = Column(Integer)
     
     def __repr__(self):
-        return "<SapUser(username='{0}', Password='{1}', Mandt='{2}')>".format(self.username, self.password, self.mandt)
+        return "<SapUser(username={0}, Password={1}, Mandt={2})>".format(self.username, self.password, self.mandt)
 
 Session.configure(bind=engine)
 session = Session()
 
-saplogons = session.query(SapLogon).filter_by(description='QBR - Contitech')
-for saplogon in saplogons:
-    print('\nSap User:')
-    print(saplogon)
-    for sapuser in saplogon.sapusers:
-        print(sapuser)
+# companies = session.query(Company).all()
+companies = session.query(Company).filter_by(name='Contitech')
+for company in companies:
+    print(company)
+    for saplogon in company.saplogons:
+        print(saplogon)
+        for sapuser in saplogon.sapusers:
+            print(sapuser)
