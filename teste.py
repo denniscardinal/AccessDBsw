@@ -1,3 +1,4 @@
+import sys
 import pymysql
 import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table
@@ -45,14 +46,22 @@ class SapUser(Base):
     def __repr__(self):
         return "<SapUser(username={0}, Password={1}, Mandt={2})>".format(self.username, self.password, self.mandt)
 
-Session.configure(bind=engine)
-session = Session()
+def app(args):
 
-# companies = session.query(Company).all()
-companies = session.query(Company).filter_by(name='Contitech')
-for company in companies:
-    print(company)
-    for saplogon in company.saplogons:
-        print(saplogon)
-        for sapuser in saplogon.sapusers:
-            print(sapuser)
+    Session.configure(bind=engine)
+    session = Session()
+
+    companies = session.query(Company).filter_by(name=args)
+
+    for company in companies:
+        print(company)
+        for saplogon in company.saplogons:
+            print(saplogon)
+            for sapuser in saplogon.sapusers:
+                print(sapuser)
+
+if __name__ == '__main__':
+    try:
+        app(sys.argv[1])
+    except:
+        print('Informe o nome da empresa na chamada.')
